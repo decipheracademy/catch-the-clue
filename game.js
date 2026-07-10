@@ -69,11 +69,48 @@ const Game = (() => {
       Audio2.wrong();
       return;
     }
+    const existing = getPlayRecord(session, name);
+    if (existing) {
+      Audio2.wrong();
+      showAlreadyPlayed(existing);
+      return;
+    }
     state.name = name; state.sessionCode = session;
     buildBandGrid();
     showScreen("screen-band");
     Audio2.tap();
   }
+
+  // ---------- ONE-PLAY LOCK (localStorage; see README for what this does and doesn't guarantee) ----------
+  function playKey(session, name) {
+    return "ctc_played::" + session.trim().toLowerCase() + "::" + name.trim().toLowerCase();
+  }
+  function getPlayRecord(session, name) {
+    try {
+      const raw = localStorage.getItem(playKey(session, name));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function savePlayRecord(record) {
+    try { localStorage.setItem(playKey(record.sessionCode, record.name), JSON.stringify(record)); }
+    catch (e) { /* storage unavailable — game still works, just without the replay lock */ }
+  }
+  function showAlreadyPlayed(record) {
+    $("finalGrade").textContent = record.grade;
+    $("finalScore").textContent = record.score + " PTS";
+    $("resultCard").innerHTML = `
+      <div class="already-played-note type">⚠ YOU'VE ALREADY PLAYED THIS SESSION — SHOWING YOUR SAVED RESULT</div>
+      <div class="result-row"><span>AGENT</span><b>${escapeHtml(record.name)}</b></div>
+      <div class="result-row"><span>GRADE</span><b>${escapeHtml(record.gradeLabel)}</b></div>
+      <div class="result-row"><span>SESSION</span><b>${escapeHtml(record.sessionCode)}</b></div>
+      <div class="result-row"><span>TIME</span><b>${record.timeStr}</b></div>
+      <div class="verify-line"><div class="verify-code type">VERIFY: ${record.verifyCode}</div></div>`;
+    $("achvList").innerHTML = (record.achievements || []).map(a => `<div class="achv-badge">🏅 ${escapeHtml(a)}</div>`).join("")
+      || `<div class="achv-badge" style="opacity:.5">No bonus achievements that run</div>`;
+    $("reviewList").innerHTML = `<div class="review-item">Review isn't available for a replay-locked result — it's only kept for the run that just finished.</div>`;
+    showScreen("screen-final");
+  }
+
 
   function buildBandGrid() {
     const grid = $("bandGrid");
@@ -391,7 +428,14 @@ const Game = (() => {
     const timeStr = `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`;
     const verifyCode = ctcVerifyCode(state.sessionCode, state.name, state.gradeLabel, totalScore, totalSeconds);
 
+    savePlayRecord({
+      name: state.name, sessionCode: state.sessionCode, gradeLabel: state.gradeLabel,
+      score: totalScore, timeStr, timeSeconds: totalSeconds, verifyCode, grade,
+      achievements: [...state.achievements]
+    });
+
     $("resultCard").innerHTML = `
+      <div class="save-confirm type">✓ RESULT SAVED — this session is now locked for ${escapeHtml(state.name)}</div>
       <div class="result-row"><span>AGENT</span><b>${escapeHtml(state.name)}</b></div>
       <div class="result-row"><span>GRADE</span><b>${escapeHtml(state.gradeLabel)}</b></div>
       <div class="result-row"><span>SESSION</span><b>${escapeHtml(state.sessionCode)}</b></div>
