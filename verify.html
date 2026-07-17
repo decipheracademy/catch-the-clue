@@ -3,58 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Catch the Clue — Facilitator Verify</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Special+Elite&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Follow the Evidence — Facilitator Verify</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#14100b; --panel:#221a12; --paper:#e9dcc3; --amber:#d4a355; --amber-bright:#f0c274;
-  --ok:#7fae5c; --err:#c1453b; --text:#f2e8d5; --muted:#a3927a;
+  --void:#14161a; --panel:#1c1f24; --paper:#e9e6dd; --steel:#5b7c99; --steel-bright:#82a5c2;
+  --alert:#c23b3b; --alert-bright:#e05a5a; --text:#eceae4; --muted:#8b9099; --line:rgba(233,230,221,.12);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--void);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:2rem 1.25rem;display:flex;flex-direction:column;align-items:center}
-h1{font-family:'Playfair Display',serif;font-weight:800;color:var(--amber-bright);font-size:26px;margin-bottom:.2rem}
-.sub{font-family:'Special Elite',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1.6rem}
-.card{background:var(--panel);border:1px solid rgba(212,163,85,.2);border-radius:12px;padding:24px;max-width:420px;width:100%}
+body{background:var(--void);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;padding:2rem 1.25rem;display:flex;flex-direction:column;align-items:center}
+h1{font-family:'Oswald',sans-serif;font-weight:700;color:var(--steel-bright);font-size:24px;margin-bottom:.2rem;text-transform:uppercase;letter-spacing:1px}
+.sub{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1.6rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;max-width:420px;width:100%}
 .field{margin-bottom:1rem;text-align:left}
-label{font-family:'Special Elite',monospace;font-size:10.5px;letter-spacing:1.5px;color:var(--amber);text-transform:uppercase;display:block;margin-bottom:.35rem}
-input{width:100%;padding:11px 12px;border-radius:6px;background:var(--void);border:1px solid rgba(212,163,85,.25);color:var(--text);font-size:14px}
-input:focus{outline:none;border-color:var(--amber)}
+label{font-size:10.5px;letter-spacing:1.5px;color:var(--steel-bright);text-transform:uppercase;display:block;margin-bottom:.35rem}
+input{width:100%;padding:11px 12px;border-radius:6px;background:var(--void);border:1px solid var(--line);color:var(--text);font-size:14px;font-family:'Space Mono',monospace}
+input:focus{outline:none;border-color:var(--steel)}
 .hint{font-size:11px;color:var(--muted);margin-top:.3rem}
-button{width:100%;margin-top:.6rem;padding:13px;border-radius:8px;background:linear-gradient(120deg,var(--amber),var(--amber-bright));
-  color:var(--void);font-family:'Playfair Display',serif;font-weight:700;font-size:15px;border:none;cursor:pointer}
+button{width:100%;margin-top:.6rem;padding:13px;border-radius:8px;background:linear-gradient(120deg,var(--alert),var(--alert-bright));
+  color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase}
 button:active{transform:scale(.98)}
-.result{margin-top:1.4rem;padding:16px;border-radius:8px;text-align:center;font-family:'Special Elite',monospace;font-size:14px;display:none}
-.result.match{background:rgba(127,174,92,.15);border:1px solid var(--ok);color:var(--ok);display:block}
-.result.nomatch{background:rgba(193,69,59,.15);border:1px solid var(--err);color:var(--err);display:block}
-.computed{font-size:12px;color:var(--muted);margin-top:.5rem}
+.result{margin-top:1.4rem;padding:16px;border-radius:8px;text-align:center;font-size:13px;display:none}
+.result.match{background:rgba(130,165,194,.12);border:1px solid var(--steel-bright);color:var(--steel-bright);display:block}
+.result.nomatch{background:rgba(194,59,59,.12);border:1px solid var(--alert-bright);color:var(--alert-bright);display:block}
+.computed{font-size:11px;color:var(--muted);margin-top:.5rem}
 .note{max-width:420px;font-size:12px;color:var(--muted);line-height:1.6;margin-top:1.4rem;text-align:center}
 </style>
 </head>
 <body>
-<h1>🔍 Facilitator Verify</h1>
-<div class="sub">Catch the Clue — Result Checker</div>
+<h1>🗂 Facilitator Verify</h1>
+<div class="sub">Follow the Evidence — Result Checker</div>
 
 <div class="card">
   <div class="field"><label>Agent Name</label><input id="vName" placeholder="Exactly as shown on the card"></div>
-  <div class="field"><label>Grade</label><input id="vGrade" placeholder="e.g. Grade 3"></div>
+  <div class="field"><label>Grade</label><input id="vGrade" placeholder="e.g. Grade 5"></div>
   <div class="field"><label>Session Code</label><input id="vSession" placeholder="Today's session code"></div>
-  <div class="field"><label>Score (pts)</label><input id="vScore" type="number" placeholder="e.g. 638"></div>
+  <div class="field"><label>Score (pts)</label><input id="vScore" type="number" placeholder="e.g. 165"></div>
   <div class="field">
     <label>Time (M:SS)</label>
-    <input id="vTime" placeholder="e.g. 5:42">
-    <div class="hint">Type it exactly as shown on the card, e.g. 5:42</div>
+    <input id="vTime" placeholder="e.g. 12:04">
+    <div class="hint">Type it exactly as shown on the results screen, e.g. 12:04</div>
   </div>
   <div class="field"><label>Code shown on their card</label><input id="vCode" placeholder="e.g. WNO-ZVU" style="text-transform:uppercase"></div>
   <button onclick="runCheck()">CHECK RESULT</button>
   <div class="result" id="resultBox"></div>
 </div>
 
-<p class="note">This confirms the five fields entered above hash to the same code shown on the student's card — it stops an edited screenshot from passing, but it isn't proof a run was played honestly under that name. Use judgment alongside it.</p>
+<p class="note">This confirms the five fields entered above hash to the same code shown on the agent's results screen — it stops an edited screenshot from passing, but it isn't proof a run was played honestly under that name. Use judgment alongside it.</p>
 
 <script>
-// Identical logic to game.js's ctcVerifyCode — kept as one canonical copy pasted here,
+// Identical logic to game.js's fteVerifyCode — kept as one canonical copy pasted here,
 // since this page can't literally import game.js. If either changes, update both together.
-function ctcVerifyCode(sessionCode, name, gradeLabel, score, timeSec) {
+function fteVerifyCode(sessionCode, name, gradeLabel, score, timeSec) {
   const str = `${sessionCode.trim().toUpperCase()}|${name.trim().toUpperCase()}|${gradeLabel.trim().toUpperCase()}|${Math.round(score)}|${Math.round(timeSec)}`;
   let hash = 5381;
   for (let i = 0; i < str.length; i++) hash = ((hash * 33) ^ str.charCodeAt(i)) >>> 0;
@@ -79,11 +79,11 @@ function runCheck() {
   const timeSec = parseTimeToSeconds(timeStr);
   if (!name || !grade || !session || isNaN(score) || timeSec === null || !claimedCode) {
     box.className = "result nomatch";
-    box.textContent = "Fill in every field (time must be M:SS, e.g. 5:42) before checking.";
+    box.textContent = "Fill in every field (time must be M:SS, e.g. 12:04) before checking.";
     return;
   }
 
-  const computed = ctcVerifyCode(session, name, grade, score, timeSec);
+  const computed = fteVerifyCode(session, name, grade, score, timeSec);
   if (computed === claimedCode) {
     box.className = "result match";
     box.innerHTML = `✓ MATCH — this result is legitimate.<div class="computed">Computed: ${computed}</div>`;

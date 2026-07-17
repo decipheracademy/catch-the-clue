@@ -1,17 +1,18 @@
-// ============ CATCH THE CLUE — AMBIENT FX ============
-// Drifting dust-mote particles (warm amber tones) behind every screen — a desk-lamp-lit
-// case-file atmosphere instead of Pulse Protocol's cyan signal particles.
+// ============ FOLLOW THE EVIDENCE — AMBIENT FX ============
+// Slow-drifting redaction bars and a faint scanline sweep behind every screen —
+// a cold, institutional "classified dossier" atmosphere, distinct from Catch the
+// Clue's warm amber dust motes.
 
 (function () {
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const canvas = document.createElement("canvas");
   canvas.id = "fxCanvas";
-  canvas.style.cssText = "position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55";
+  canvas.style.cssText = "position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4";
   document.body.prepend(canvas);
   const ctx = canvas.getContext("2d");
 
-  let w, h, particles = [];
+  let w, h, bars = [];
   function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
@@ -19,31 +20,34 @@
   window.addEventListener("resize", resize);
   resize();
 
-  const COUNT = reduceMotion ? 0 : 46;
+  const COUNT = reduceMotion ? 0 : 10;
   for (let i = 0; i < COUNT; i++) {
-    particles.push({
+    bars.push({
       x: Math.random() * w,
       y: Math.random() * h,
-      r: Math.random() * 1.8 + 0.5,
-      vy: -(Math.random() * 0.12 + 0.03),
-      vx: (Math.random() - 0.5) * 0.05,
-      alpha: Math.random() * 0.35 + 0.08,
-      hue: Math.random() > 0.5 ? "213,163,92" : "230,200,150" // warm amber/sepia tones
+      width: 40 + Math.random() * 120,
+      height: 6 + Math.random() * 8,
+      vy: (Math.random() * 0.05 + 0.015),
+      alpha: Math.random() * 0.05 + 0.02
     });
   }
 
+  let scanY = 0;
   function tick() {
     ctx.clearRect(0, 0, w, h);
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.y < -5) { p.y = h + 5; p.x = Math.random() * w; }
-      if (p.x < -5) p.x = w + 5;
-      if (p.x > w + 5) p.x = -5;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${p.hue},${p.alpha})`;
-      ctx.fill();
+    bars.forEach(b => {
+      b.y += b.vy;
+      if (b.y > h + 10) { b.y = -10; b.x = Math.random() * w; }
+      ctx.fillStyle = `rgba(20,22,26,${b.alpha})`;
+      ctx.fillRect(b.x, b.y, b.width, b.height);
     });
+    scanY = (scanY + 0.3) % h;
+    const grad = ctx.createLinearGradient(0, scanY - 40, 0, scanY + 40);
+    grad.addColorStop(0, "rgba(91,124,153,0)");
+    grad.addColorStop(0.5, "rgba(91,124,153,0.03)");
+    grad.addColorStop(1, "rgba(91,124,153,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, scanY - 40, w, 80);
     if (!reduceMotion) requestAnimationFrame(tick);
   }
   tick();

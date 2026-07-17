@@ -1,40 +1,92 @@
-# Catch the Clue — Skill Challenge Friday, Week 2
+# Follow the Evidence — Skill Challenge Friday, Week 3
 
-A detective/case-file investigation game, built distinct from last week's Pulse Protocol — new visual identity (amber/sepia case-file look, Playfair Display + Special Elite type), new structure (3 Investigations instead of 3 Zones), and new mechanics (case board elimination, typewriter witness statements, evidence stamps, point-wager finale).
+Direct continuation of Catch the Clue (Week 2) — Mission Log #2. A chained, three-round
+investigation game: **Reconstruct the Case → Follow the Trail → Close the Case**, where
+each round unlocks the next and builds on the evidence from the one before.
+
+Visual identity: **Classified Dossier** — graphite/charcoal, off-white paper, evidence-tag
+red, steel-blue "confirmed" accent. A persistent case board (pins + red string + conclusion
+cards) accumulates across all three rounds instead of a plain score counter.
 
 ## Deploy free on GitHub Pages
-1. Create a new public GitHub repo.
-2. Upload everything in this folder, keeping the structure: `index.html`, `verify.html`, `data.js`, `audio.js`, `fx.js`, `game.js`, `assets/images/`, `assets/audio/`.
+1. Create a new public GitHub repo (suggested name: `FollowTheEvidence`).
+2. Upload everything in this folder, keeping structure: `index.html`, `verify.html`,
+   `data.js`, `audio.js`, `fx.js`, `game.js`, `assets/audio/bgmusic.mp3`.
 3. Settings → Pages → Source: "Deploy from a branch" → `main` → `/ (root)`.
 4. Live at `https://<your-username>.github.io/<repo-name>/`.
 
 ## Test locally first
 ```
-cd catch-the-clue
+cd follow-the-evidence
 python3 -m http.server 8000
 ```
 Visit `http://localhost:8000`.
 
 ## What's implemented
-- Full flow: Home → Agent Registration (name + session code) → Grade Select (all 12 grades individually) → Case File Briefing → 3 Investigations → Final Mystery (with point wager) → Results
-- All 90 questions across 6 bands, each graded by keyword-matching rules that were dry-run tested against realistic sample answers before being wired to the UI (see "Grading accuracy" below)
-- Investigation 3's elimination-style questions use a tappable case board (not free text) — matching how the document actually describes them
-- Typewriter-style witness statement reveal, stamp-slam animation on evidence recovery, combo "Instinct" meter with escalating multiplier
-- The shared closing Final Mystery Question, with a 0/10/25 point wager before answering — this is the one moment I added beyond the source document, to give the climax real stakes (see the design discussion in-chat for why)
-- 190-point max scoring, matching the document's stated formula
-- Facilitator override panel on the results screen — any auto-marked-wrong answer can be manually marked correct
-- Verification code system (`verify.html`) — same pattern as Pulse Protocol's, but this time both copies of the hash function were checked byte-for-byte identical *before* shipping, specifically because a hash mismatch was the exact bug that slipped through in Pulse Protocol's first build
+- Full flow: Home → Agent Registration → Grade Select (12 grades) → Case Briefing →
+  Round 1 → Round 2 → Round 3 → Mission Complete / Results
+- **Chained rounds**: Round 2 is inaccessible until Round 1 is submitted; Round 3 until
+  Round 2 is submitted. Advancing happens regardless of right/wrong answers — the doc's
+  "high reduction in points" for weak submissions is realized through the one-attempt
+  rule below, so there's no separate skip penalty to model.
+- **One attempt per question**: no retries. Wrong = −3 pts and an "UNRELIABLE" stamp,
+  then auto-advance. Correct = +10 pts and a "CONFIRMED" stamp.
+- **90 questions across 6 bands** (15 per band: 5 per round), matching the source doc
+  exactly, including Band 1–2's simpler single-answer grading and Band 3–6's stricter
+  multi-part "must state X AND Y" grading.
+- **AND-logic grading engine**: each question has 1–4 keyword groups; ALL groups must
+  match (each group is an OR of acceptable phrasings) — implements the "strict AND"
+  approach you chose over Catch the Clue's looser OR-matching.
+- **Sequencing mechanic** for Round 1, Question 1, in Bands 1–3 (tap-to-order timeline
+  items) — matches the doc's literal bracketed reorder tasks. Bands 4–6 shift Round 1 Q1
+  to a conflicting-source evaluation question instead, since the doc itself drops the
+  literal ordering task for those bands (see "Design decisions" below).
+- **Case board**: persistent visual that accumulates evidence pins + connecting red
+  string through Rounds 1–2, and shows tappable-style conclusion cards in Round 3 that
+  visually cross out as they're eliminated by correct answers.
+- **Case Integrity meter**: drops with each wrong answer — reframes Catch the Clue's
+  "Instinct" combo meter to fit this game's more serious investigative tone.
+- **Case File reward stamps + transition screens** between rounds, using the doc's exact
+  scripted transition lines.
+- **Scoring**: +10/correct, −3/wrong, +5 per round completed (×3), +10 full mission
+  bonus. Max 175 pts, matching the doc's stated ceiling.
+- **One-play session lock** (localStorage, keyed by session code + agent name) — stores
+  the full result (score, time, verification code, correct/wrong counts), not just a
+  flag. A repeat registration with the exact same name + session code shows the saved
+  result card instead of a bare error, so an agent who reloads doesn't lose their score.
+  Tradeoff worth knowing (same as the verify-code system): this stops the casual case —
+  disliking a score and hitting replay — but doesn't stop someone clearing browser data,
+  switching browsers, or switching devices, since there's no server tracking this. A hard
+  guarantee against that would need a real backend, which we set aside earlier for
+  cost/complexity reasons.
+- **Verification code system** (`verify.html`) — byte-identical hash function to
+  `game.js`'s copy, same safeguard pattern as the last two games.
+- **Facilitator override panel** on the results screen — any auto-marked-wrong answer
+  can be manually marked correct, with the score adjustment applied live.
+- Fully responsive (tested at 390px mobile and 1440px desktop viewports), no avatars,
+  all visuals built in SVG/CSS — no image assets required.
 
-## Grading accuracy — what was actually tested
-All keyword rules live in `data.js` (`keywords` field per question). Before wiring any of it to the UI, I ran an automated dry-run (in `gen/dry_run_grading.py`, not needed for the live game, kept here for your reference) that:
-- Fed 27 realistic sample answers (phrased the way a student plausibly would, not copied verbatim from the document) through the actual grading function and confirmed all 27 pass
-- Confirmed obviously-wrong answers ("banana", "the sky is blue") correctly fail — so the rules aren't so loose they accept anything
-- Swept all 90 questions to confirm none have empty or broken keyword rules
-
-This is meaningfully more testing than a first pass usually gets, but keyword grading on free-text answers will never be perfect — that's exactly why the facilitator override panel exists. Expect to use it occasionally, especially on Band 5–6's more complex reasoning questions.
+## Design decisions worth knowing about
+- **Grading strictness**: keyword groups for Bands 3–6 were hand-derived from the doc's
+  "Accept Any Answer That Includes" column, aiming for reasonably generous synonym lists
+  within each required group. Given free-text grading is inherently imperfect, expect
+  the facilitator override panel to see real use — especially on Band 5–6's longer
+  synthesis questions (Round 3, Q5 in every band 3+ requires 3–4 distinct elements).
+- **Round 2's "match evidence to location" sub-questions** (e.g., Band 3 R2 Q3) are
+  implemented as a single free-text answer covering all matches, graded by checking each
+  location name appears — not as a drag-and-drop matching UI. Flagged here since it's a
+  simplification from how a facilitator might picture "matching."
+- **Round 1 Q1 mechanic differs by band on purpose**: Bands 1–3 get the interactive
+  tap-to-order sequencing UI (matches the doc's literal bracketed lists). Bands 4–6 don't
+  have a bracketed list in the source doc for Q1 — their Round 1 opens with a
+  conflicting-source evaluation question instead — so those bands use free text there too.
+- **Band 6's Round 3** intentionally has no single "correct" narrative arc — Conclusion E
+  ("cannot be definitively closed") is the strongest answer per the doc's own facilitator
+  note, and the game's grading reflects that without forcing a false sense of closure.
 
 ## First-pass items worth a closer look before full launch
-- Case board elimination checks for an *exact* match against the intended eliminate set — if a student selects a technically-also-reasonable extra destination the document didn't flag, it'll mark wrong. Worth a real playtest pass on Investigation 3 specifically.
-- The point-wager mechanic and the "all investigations complete" flow haven't been tested end-to-end on a real device yet.
-- Same caveat as Pulse Protocol: mobile audio autoplay and touch behavior should get a real-phone check before rollout.
-- Scoring note: the combo multiplier (1.2x/1.5x on streaks) means a flawless, fast run can technically score slightly above the document's stated 190-point max. This is intentional — it rewards sustained accuracy — but flagging it since 190 is used as the reference ceiling for the S/A/B/C grade bands.
+- Real-device audio autoplay/touch check, same caveat as the last two games.
+- The case board's evidence-pin layout scales with question count but hasn't been
+  stress-tested visually beyond 15 pins per round — worth a look at very small screens.
+- Keyword grading, as always, will need a facilitator's eye — it's a first pass, not a
+  final-tuned rubric.

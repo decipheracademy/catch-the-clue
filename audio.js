@@ -1,7 +1,8 @@
-// ============ CATCH THE CLUE — AUDIO ============
-// SFX are procedural (Web Audio API). Background music is the supplied bgmusic.mp3.
+// ============ FOLLOW THE EVIDENCE — AUDIO ============
+// Procedural SFX (Web Audio API), colder/more institutional than Catch the Clue's warm
+// typewriter palette — stamps, pin-clicks, string-pulls, and a case-integrity alarm.
 
-const Audio2 = (() => {
+const FTEAudio = (() => {
   let ctx = null;
   let muted = false;
   let musicEl = null;
@@ -52,7 +53,7 @@ const Audio2 = (() => {
       if (musicEl) return;
       musicEl = new Audio("assets/audio/bgmusic.mp3");
       musicEl.loop = true;
-      musicEl.volume = 0.28;
+      musicEl.volume = 0.25;
     },
     startMusic() {
       this.initMusic();
@@ -66,43 +67,32 @@ const Audio2 = (() => {
       if (!muted) this.tap();
     },
     isMuted() { return muted; },
-    tap() { tone(600, 0.05, "sine", 0.09); },
-    typewriterKey() { noiseBurst(0.03, 0.05, 2200, "highpass"); },
-    paperRustle() { noiseBurst(0.22, 0.08, 900, "bandpass"); },
+    tap() { tone(520, 0.05, "sine", 0.09); },
+    pinClick() { tone(900, 0.04, "square", 0.08); noiseBurst(0.02, 0.04, 3000, "highpass"); },
+    stringPull() { tone(220, 0.16, "sawtooth", 0.07, 0, 320); },
     stampThud() {
-      tone(90, 0.14, "sine", 0.22);
-      noiseBurst(0.08, 0.1, 400, "lowpass");
+      tone(80, 0.16, "sine", 0.24);
+      noiseBurst(0.09, 0.11, 350, "lowpass");
     },
-    pageTurnWhoosh() { noiseBurst(0.28, 0.1, 1400, "bandpass"); },
-    correct(comboLevel = 0) {
-      const base = 480 + Math.min(comboLevel, 10) * 18;
-      tone(base, 0.13, "triangle", 0.15);
-      tone(base * 1.5, 0.11, "triangle", 0.07, 0.05);
+    pageShuffle() { noiseBurst(0.2, 0.08, 1100, "bandpass"); },
+    correct() {
+      tone(500, 0.13, "triangle", 0.15);
+      tone(750, 0.11, "triangle", 0.08, 0.06);
     },
-    wrong() { tone(170, 0.2, "sawtooth", 0.13, 0, 100); },
-    comboMilestone() {
-      tone(620, 0.09, "square", 0.11);
-      tone(830, 0.09, "square", 0.11, 0.08);
-      tone(1040, 0.13, "square", 0.13, 0.16);
+    wrong() {
+      tone(160, 0.22, "sawtooth", 0.14, 0, 90);
+      noiseBurst(0.12, 0.07, 500);
     },
-    cardEliminate() {
-      tone(300, 0.1, "sawtooth", 0.12, 0, 150);
-      noiseBurst(0.1, 0.06, 600);
-    },
-    countdownBeep(isGo = false) {
-      if (isGo) { tone(760, 0.2, "triangle", 0.18); tone(1140, 0.16, "triangle", 0.12, 0.05); }
-      else tone(400, 0.13, "triangle", 0.14);
-    },
-    zoneComplete() {
-      [440, 554, 659, 880].forEach((f, i) => tone(f, 0.17, "triangle", 0.13, i * 0.09));
+    integrityDrop() { tone(300, 0.18, "square", 0.1, 0, 140); },
+    caseFileSecured() {
+      [440, 554, 659, 880].forEach((f, i) => tone(f, 0.16, "triangle", 0.13, i * 0.09));
       this.stampThud();
     },
-    wagerLock() { tone(220, 0.2, "sawtooth", 0.14, 0, 260); },
-    wagerWin() { [523, 659, 784, 988, 1318].forEach((f, i) => tone(f, 0.2, "triangle", 0.15, i * 0.08)); },
-    wagerLose() { tone(220, 0.35, "sine", 0.15, 0, 90); },
-    achievement() {
-      [620, 830, 1040, 1300].forEach((f, i) => tone(f, 0.11, "square", 0.09, i * 0.06));
+    countdownBeep(isGo = false) {
+      if (isGo) { tone(700, 0.2, "triangle", 0.18); tone(1050, 0.16, "triangle", 0.12, 0.05); }
+      else tone(380, 0.12, "triangle", 0.13);
     },
+    conclusionEliminated() { tone(260, 0.14, "sawtooth", 0.12, 0, 120); noiseBurst(0.1, 0.06, 500); }, 
     missionComplete() {
       [370, 494, 587, 740, 988, 1245].forEach((f, i) => tone(f, 0.2, "triangle", 0.15, i * 0.11));
     }

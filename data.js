@@ -1,1387 +1,362 @@
-// ============ CATCH THE CLUE — GAME DATA ============
-// 90 questions across 6 bands, dry-run tested against document sample answers before wiring to UI.
+// ============ FOLLOW THE EVIDENCE — DATA ============
+// Skill Challenge Friday, Week 3. Mission Log #2. 6 grade bands, 3 chained rounds
+// per band (Reconstruct -> Follow the Trail -> Close the Case), 5 questions per round.
 
 const GRADES = [
-  { grade: 1, bandIdx: 0 },
-  { grade: 2, bandIdx: 0 },
-  { grade: 3, bandIdx: 1 },
-  { grade: 4, bandIdx: 1 },
-  { grade: 5, bandIdx: 2 },
-  { grade: 6, bandIdx: 2 },
-  { grade: 7, bandIdx: 3 },
-  { grade: 8, bandIdx: 3 },
-  { grade: 9, bandIdx: 4 },
-  { grade: 10, bandIdx: 4 },
-  { grade: 11, bandIdx: 5 },
-  { grade: 12, bandIdx: 5 }
+  { label: "Grade 1", bandIdx: 0 }, { label: "Grade 2", bandIdx: 0 },
+  { label: "Grade 3", bandIdx: 1 }, { label: "Grade 4", bandIdx: 1 },
+  { label: "Grade 5", bandIdx: 2 }, { label: "Grade 6", bandIdx: 2 },
+  { label: "Grade 7", bandIdx: 3 }, { label: "Grade 8", bandIdx: 3 },
+  { label: "Grade 9", bandIdx: 4 }, { label: "Grade 10", bandIdx: 4 },
+  { label: "Grade 11", bandIdx: 5 }, { label: "Grade 12", bandIdx: 5 }
 ];
+
+// Grading: each question has `groups` — an array of keyword-groups.
+// A group is satisfied if ANY phrase in it appears in the answer (OR).
+// ALL groups must be satisfied for the answer to be marked correct (AND).
+// Bands 1-2 use a single lenient group. Bands 3-6 use 2-4 strict AND groups,
+// mirroring the doc's "must include X AND Y" grading language.
 
 const BANDS = [
-  {
-    "id": 1,
-    "grades": "Grade 1 & 2",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A school playground. Four children describe what they saw at lunch.",
-        "witnesses": [
-          "Witness A: \"I saw a cat sitting on the slide and eating a sandwich.\"",
-          "Witness B: \"I saw a dog chasing a ball near the swings.\"",
-          "Witness C: \"I saw a cat sitting on the slide eating a sandwich AND drinking juice at the same time.\"",
-          "Witness D: \"I heard a bird singing near the big tree.\""
+
+// ============================================================
+// BAND 1 — Grades 1 & 2 — Biscuit the Missing Puppy
+// ============================================================
+{
+  id: 0, gradeLabel: "Band 1 (Grades 1–2)", caseTitle: "The Case of Biscuit's Night Out",
+  intro: "The investigation file contains a short diary from a missing puppy named Biscuit. The pages are all mixed up.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Timeline Recovered",
+      brief: "Biscuit's diary has four mixed-up pages. Help put them back in order.",
+      sequence: {
+        prompt: "Arrange Biscuit's day in order:",
+        items: [
+          { id: "morning", label: "Morning — Biscuit eats breakfast" },
+          { id: "afternoon", label: "Afternoon — Biscuit plays in the garden" },
+          { id: "evening", label: "Evening — Biscuit sleeps by the fire" },
+          { id: "night", label: "Night — Biscuit hears a strange noise" }
         ],
-        "questions": [
-          {
-            "q": "Which witness says the cat was doing TWO things at the same time?",
-            "keywords": [
-              [
-                "c"
-              ],
-              [
-                "witness c"
-              ]
-            ]
-          },
-          {
-            "q": "Can a cat eat a sandwich? What does this tell you about Witness A?",
-            "keywords": [
-              [
-                "no"
-              ],
-              [
-                "unlikely"
-              ],
-              [
-                "mistak"
-              ],
-              [
-                "imagin"
-              ]
-            ]
-          },
-          {
-            "q": "Which two witnesses could BOTH be telling the truth?",
-            "keywords": [
-              [
-                "b",
-                "d"
-              ]
-            ]
-          },
-          {
-            "q": "Which witness gives the most impossible statement?",
-            "keywords": [
-              [
-                "c"
-              ],
-              [
-                "witness c"
-              ]
-            ]
-          },
-          {
-            "q": "If you had to pick one most reliable witness, who would it be and why?",
-            "keywords": [
-              [
-                "d"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b1_i1.jpg"
+        correctOrder: ["morning", "afternoon", "evening", "night"]
       },
-      {
-        "title": "Evidence Analysis",
-        "scene": "The investigation leads to a collection of objects found at the scene.",
-        "questions": [
-          {
-            "q": "You find: a pencil, a reading book, a football, a shelf, and a library card. Which object does NOT belong in a reading place?",
-            "keywords": [
-              [
-                "football"
-              ]
-            ]
-          },
-          {
-            "q": "Put these in order of what you do first at a library: Return book \u2192 Read book \u2192 Borrow book \u2192 Choose book",
-            "keywords": [
-              [
-                "choose",
-                "borrow",
-                "read",
-                "return"
-              ]
-            ]
-          },
-          {
-            "q": "Which two objects are connected? A bookmark and a novel.",
-            "keywords": [
-              [
-                "read"
-              ]
-            ]
-          },
-          {
-            "q": "One piece of evidence is a torn page with the word __EDGE written on it. What word could this be?",
-            "keywords": [
-              [
-                "knowledge"
-              ],
-              [
-                "ledge"
-              ]
-            ]
-          },
-          {
-            "q": "You find a note that says: 'You need this to borrow things from a special place.' What is it?",
-            "keywords": [
-              [
-                "library card"
-              ],
-              [
-                "card"
-              ]
-            ]
-          }
+      questions: [
+        { id: "q2", q: "Which entry tells us where Biscuit was last seen awake?", groups: [["night", "strange noise", "heard a"]] },
+        { id: "q3", q: "The Morning page is torn. What do we know happened just AFTER the morning entry?", groups: [["garden", "afternoon", "play"]] },
+        { id: "q4", q: "A photo shows Biscuit near the garden gate. Which diary entry does this match?", groups: [["afternoon", "garden"]] },
+        { id: "q5", q: "Based on the diary order, when did things start to feel unusual for Biscuit?", groups: [["night", "strange", "noise"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Using the diary timeline, follow the evidence found near each location Biscuit visited.",
+      questions: [
+        { id: "q1", q: "A paw print is found near the garden gate. Which diary entry does this match?", groups: [["afternoon", "garden"]] },
+        { id: "q2", q: "A chewed toy is found near the fireside. Which time of day does this match?", groups: [["evening", "fire"]] },
+        { id: "q3", q: "A muddy trail leads from the garden to the back door. What does this tell us?", groups: [["inside", "came in", "connect", "afternoon to evening", "garden to"]] },
+        { id: "q4", q: "A leash by the front door does NOT match any diary entry. Why might it be irrelevant?", groups: [["walk", "not mention", "doesn't match", "no walk", "leash"]] },
+        { id: "q5", q: "Which location should investigators look at most carefully, and why?", groups: [["garden gate", "paw print", "muddy trail", "garden"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Closed",
+      brief: "You have Biscuit's diary timeline and the evidence trail. Where did Biscuit go?",
+      conclusions: [
+        { id: "A", label: "Behind the sofa" },
+        { id: "B", label: "Through the garden gate" },
+        { id: "C", label: "Under the bed" }
+      ],
+      questions: [
+        { id: "q1", q: "The paw prints lead to the garden gate. Does this match A, B, or C?", groups: [["b", "garden gate"]], eliminates: [] },
+        { id: "q2", q: "Biscuit heard a strange noise at Night. Does this make the garden gate more or less likely?", groups: [["more likely", "outside", "drew", "attracted"]], eliminates: [] },
+        { id: "q3", q: "No evidence was found near the sofa or under the bed. What does this tell us about A and C?", groups: [["eliminate", "no evidence", "ruled out"]], eliminates: ["A", "C"] },
+        { id: "q4", q: "Using the timeline and evidence trail, which destination is supported by all the evidence?", groups: [["b", "garden gate"]], eliminates: [] },
+        { id: "q5", q: "Write one sentence explaining how the evidence led you to this conclusion.", groups: [["paw print", "muddy trail", "noise", "garden gate"]], eliminates: [] }
+      ]
+    }
+  ]
+},
+
+// ============================================================
+// BAND 2 — Grades 3 & 4 — The Missing School Trophy
+// ============================================================
+{
+  id: 1, gradeLabel: "Band 2 (Grades 3–4)", caseTitle: "The Case of the Missing Trophy",
+  intro: "An investigation file about a missing school trophy has been found in the library. The report pages are out of order.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Timeline Recovered",
+      brief: "Reconstruct the timeline of the trophy's disappearance.",
+      sequence: {
+        prompt: "Arrange these events in chronological order:",
+        items: [
+          { id: "a900", label: "9:00 AM — Trophy confirmed present at morning assembly" },
+          { id: "b100", label: "1:00 PM — Display case left unlocked during lunch" },
+          { id: "c330", label: "3:30 PM — Trophy seen in display case by cleaner" },
+          { id: "d415", label: "4:15 PM — Caretaker notices display case open" },
+          { id: "e500", label: "5:00 PM — Trophy reported missing by sports teacher" }
         ],
-        "img": "assets/images/b1_i2.jpg"
+        correctOrder: ["a900", "b100", "c330", "d415", "e500"]
       },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: Hospital, Library, Beach, Zoo, Supermarket, School.",
-        "destinations": [
-          "Hospital",
-          "Library",
-          "Beach",
-          "Zoo",
-          "Supermarket",
-          "School"
+      questions: [
+        { id: "q2", q: "Which event created the opportunity for the trophy to go missing?", groups: [["1:00", "lunch", "unlocked"]] },
+        { id: "q3", q: "What is the smallest possible time window during which the trophy disappeared?", groups: [["3:30"], ["4:15"]] },
+        { id: "q4", q: "The teacher reported it missing at 5:00 PM. Does this mean it disappeared at 5:00 PM? Explain.", groups: [["no"], ["3:30", "4:15", "noticed"]] },
+        { id: "q5", q: "Which two consecutive events are most important for the investigation and why?", groups: [["3:30"], ["4:15"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Using the 3:30–4:15 PM window, follow the evidence trail through the school.",
+      questions: [
+        { id: "q1", q: "A fingerprint is found on the display case glass. Does this confirm the trophy was taken, or just touched?", groups: [["touch", "only touched", "contact"]] },
+        { id: "q2", q: "CCTV shows a person near the display case at 3:45 PM. Is this within the critical window?", groups: [["yes"], ["3:45"]] },
+        { id: "q3", q: "A muddy shoe print leads from the display case toward the sports room. What does this suggest about direction?", groups: [["sports room", "toward", "moved"]] },
+        { id: "q4", q: "A lunchbox is found near the display case. Is this relevant to the investigation? Why or why not?", groups: [["irrelevant", "not relevant", "any student", "unrelated"]] },
+        { id: "q5", q: "Based on the trail so far, which location should investigators focus on next?", groups: [["sports room"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Closed",
+      brief: "You have the critical window (3:30–4:15 PM) and the trail (display case → sports room). Close the case.",
+      conclusions: [
+        { id: "A", label: "A student hid the trophy in the sports room" },
+        { id: "B", label: "The trophy fell behind the display case" },
+        { id: "C", label: "The trophy was taken out of the building" }
+      ],
+      questions: [
+        { id: "q1", q: "The shoe print trail ends at the sports room door. Does this support A, B, or C?", groups: [["a", "sports room"]], eliminates: [] },
+        { id: "q2", q: "No evidence was found near the back of the display case. Does this eliminate B?", groups: [["yes"], ["eliminate", "b"]], eliminates: ["B"] },
+        { id: "q3", q: "CCTV near the front exit shows no one carrying a large trophy-shaped object. Does this eliminate C?", groups: [["yes"], ["eliminate", "c"]], eliminates: ["C"] },
+        { id: "q4", q: "Which conclusion is supported by both the timeline and the evidence trail?", groups: [["a", "sports room"]], eliminates: [] },
+        { id: "q5", q: "Write two sentences closing the case using the evidence.", groups: [["sports room"]], eliminates: [] }
+      ]
+    }
+  ]
+},
+
+// ============================================================
+// BAND 3 — Grades 5 & 6 — The Locked Room
+// ============================================================
+{
+  id: 2, gradeLabel: "Band 3 (Grades 5–6)", caseTitle: "The Case of the Locked Room",
+  intro: "Five diary entries, two photographs, and a handwritten note — all about a locked room that was found open one morning.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Timeline Recovered",
+      brief: "Reconstruct the chronological order of the five diary entries.",
+      sequence: {
+        prompt: "Arrange these entries in chronological order:",
+        items: [
+          { id: "A", label: "Diary A — Monday 9:00 AM: The room was locked as normal" },
+          { id: "C", label: "Diary C — Monday 6:00 PM: I locked the room personally and tested the handle" },
+          { id: "E", label: "Diary E — Monday 11:30 PM: I heard footsteps near the room" },
+          { id: "D", label: "Diary D — Tuesday 6:45 AM: I passed the room — the door looked different" },
+          { id: "B", label: "Diary B — Tuesday 8:00 AM: The room was open when I arrived" }
         ],
-        "questions": [
-          {
-            "q": "Clue: 'It is a quiet place.' Eliminate the loudest destinations.",
-            "keywords": [
-              [
-                "beach",
-                "zoo"
-              ]
-            ],
-            "eliminate": [
-              "Beach",
-              "Zoo"
-            ]
-          },
-          {
-            "q": "Clue: 'You do not buy things here.' Eliminate places where you spend money.",
-            "keywords": [
-              [
-                "supermarket"
-              ]
-            ],
-            "eliminate": [
-              "Supermarket"
-            ]
-          },
-          {
-            "q": "Clue: 'You borrow things here instead of keeping them.' Which places are left?",
-            "keywords": [
-              [
-                "library",
-                "hospital",
-                "school"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'It is full of books.' Which destination fits?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Final question: Where have all the clues been leading you?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b1_i3.jpg"
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "grades": "Grade 3 & 4",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A school corridor. Three students describe what they saw after the bell rang.",
-        "witnesses": [
-          "Witness A: \"I saw a teacher carry a pile of books into the room at exactly 2:00 PM.\"",
-          "Witness B: \"I saw the same teacher walk OUT of the room carrying the same books at 2:00 PM.\"",
-          "Witness C: \"I heard the books fall from the third floor at 2:05 PM.\"",
-          "Witness D: \"I saw the teacher in the staffroom at 2:10 PM reading a newspaper.\""
-        ],
-        "questions": [
-          {
-            "q": "What is the direct contradiction between Witness A and Witness B?",
-            "keywords": [
-              [
-                "in",
-                "out"
-              ]
-            ]
-          },
-          {
-            "q": "Is it possible for both A and B to be correct? Explain.",
-            "keywords": [
-              [
-                "no"
-              ],
-              [
-                "cannot"
-              ],
-              [
-                "can't"
-              ],
-              [
-                "impossible"
-              ]
-            ]
-          },
-          {
-            "q": "Does Witness C's statement support Witness A or B? Why?",
-            "keywords": [
-              [
-                "neither"
-              ],
-              [
-                "either"
-              ]
-            ]
-          },
-          {
-            "q": "Which witness statement is most independent and least likely to be wrong?",
-            "keywords": [
-              [
-                "d"
-              ],
-              [
-                "witness d"
-              ]
-            ]
-          },
-          {
-            "q": "Based on all statements, what is the most likely sequence of events?",
-            "keywords": [
-              [
-                "a",
-                "c",
-                "d"
-              ],
-              [
-                "b",
-                "wrong"
-              ],
-              [
-                "b",
-                "incorrect"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b2_i1.jpg"
+        correctOrder: ["A", "C", "E", "D", "B"]
       },
-      {
-        "title": "Evidence Analysis",
-        "scene": "Evidence from the corridor has been collected.",
-        "questions": [
-          {
-            "q": "A torn note reads: 'Meet me where the ___OWLEDGE grows.' Complete the word.",
-            "keywords": [
-              [
-                "knowledge"
-              ]
-            ]
-          },
-          {
-            "q": "Arrange these events in logical order: Books fall \u2192 Bell rings \u2192 Teacher carries books \u2192 Students leave",
-            "keywords": [
-              [
-                "bell",
-                "students",
-                "teacher",
-                "books fall"
-              ]
-            ]
-          },
-          {
-            "q": "Which piece of evidence is IRRELEVANT to a library investigation: a library card, a torn page, a football whistle, a bookmark?",
-            "keywords": [
-              [
-                "whistle"
-              ]
-            ]
-          },
-          {
-            "q": "A timeline shows: 1:55 \u2014 corridor empty. 2:00 \u2014 teacher seen. 2:05 \u2014 loud noise. 2:10 \u2014 staffroom. What likely happened between 2:00 and 2:05?",
-            "keywords": [
-              [
-                "moved"
-              ],
-              [
-                "dropped"
-              ],
-              [
-                "fell"
-              ]
-            ]
-          },
-          {
-            "q": "You find two pieces of evidence: a library receipt dated today, and a muddy shoe print near the bookshelf. What can you infer?",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "outside"
-              ],
-              [
-                "visit"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b2_i2.jpg"
-      },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: Hospital, Library, Museum, Beach, Supermarket, School.",
-        "destinations": [
-          "Hospital",
-          "Library",
-          "Museum",
-          "Beach",
-          "Supermarket",
-          "School"
-        ],
-        "questions": [
-          {
-            "q": "Clue: 'You visit here to gain knowledge, not to be treated.' Eliminate places.",
-            "keywords": [
-              [
-                "hospital"
-              ]
-            ],
-            "eliminate": [
-              "Hospital"
-            ]
-          },
-          {
-            "q": "Clue: 'You don't pay to take things home.' Eliminate places.",
-            "keywords": [
-              [
-                "supermarket",
-                "beach"
-              ]
-            ],
-            "eliminate": [
-              "Supermarket",
-              "Beach"
-            ]
-          },
-          {
-            "q": "Clue: 'It is quiet and indoors.' Which destinations remain?",
-            "keywords": [
-              [
-                "library",
-                "museum",
-                "school"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'You can borrow items and bring them back.' Which place fits this perfectly?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "eliminate": [
-              "Museum",
-              "School"
-            ]
-          },
-          {
-            "q": "Final question: Name the destination all clues point to.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b2_i3.jpg"
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "grades": "Grade 5 & 6",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A school library. Four students and one librarian give statements about a missing book.",
-        "witnesses": [
-          "Witness A (Student): \"The book was on the top shelf when I left at 3:15 PM.\"",
-          "Witness B (Student): \"I saw the book being carried out by someone in a red jacket at 3:10 PM.\"",
-          "Witness C (Student): \"There was nobody in the library between 3:00 and 3:20 PM.\"",
-          "Witness D (Librarian): \"I was at the desk the entire afternoon and saw no one leave with a book.\"",
-          "Witness E (Student): \"I borrowed the book at 3:05 PM. I have the receipt.\""
-        ],
-        "questions": [
-          {
-            "q": "Identify ONE direct contradiction between any two witnesses.",
-            "keywords": [
-              [
-                "c"
-              ],
-              [
-                "nobody"
-              ]
-            ]
-          },
-          {
-            "q": "Which witness provides the STRONGEST evidence? Why?",
-            "keywords": [
-              [
-                "e"
-              ],
-              [
-                "receipt"
-              ]
-            ]
-          },
-          {
-            "q": "Can Witness B and Witness D both be correct? Explain.",
-            "keywords": [
-              [
-                "no"
-              ],
-              [
-                "cannot"
-              ],
-              [
-                "can't"
-              ]
-            ]
-          },
-          {
-            "q": "Which witness is LEAST reliable and why?",
-            "keywords": [
-              [
-                "c"
-              ],
-              [
-                "witness c"
-              ]
-            ]
-          },
-          {
-            "q": "Based on all statements, construct the most likely sequence of events.",
-            "keywords": [
-              [
-                "e"
-              ],
-              [
-                "b"
-              ],
-              [
-                "a"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b3_i1.jpg"
-      },
-      {
-        "title": "Evidence Analysis",
-        "scene": "Evidence has been gathered from the library scene.",
-        "questions": [
-          {
-            "q": "You find three receipts: one dated yesterday, one from last week, one undated. Which is most useful to the investigation and why?",
-            "keywords": [
-              [
-                "yesterday"
-              ],
-              [
-                "recent"
-              ]
-            ]
-          },
-          {
-            "q": "A sticky note reads: 'Check the place where IMAGINATION has no limits.' What kind of place is being described?",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "reading"
-              ],
-              [
-                "creative"
-              ]
-            ]
-          },
-          {
-            "q": "Two pieces of evidence point in opposite directions. How do you decide which to trust?",
-            "keywords": [
-              [
-                "support"
-              ],
-              [
-                "proof"
-              ],
-              [
-                "consisten"
-              ]
-            ]
-          },
-          {
-            "q": "Timeline: Book last seen (3:05) \u2192 Borrowed (3:05) \u2192 Reported missing (3:30). Is the book actually missing?",
-            "keywords": [
-              [
-                "no"
-              ],
-              [
-                "not"
-              ],
-              [
-                "borrowed"
-              ]
-            ]
-          },
-          {
-            "q": "A letter is found with every other word removed: 'The ___ is hidden ___ the place ___ knowledge ___.' Fill in plausible words.",
-            "keywords": [
-              [
-                "book"
-              ],
-              [
-                "library"
-              ],
-              [
-                "knowledge"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b3_i2.jpg"
-      },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: Hospital, Library, Museum, Laboratory, Airport, School.",
-        "destinations": [
-          "Hospital",
-          "Library",
-          "Museum",
-          "Laboratory",
-          "Airport",
-          "School"
-        ],
-        "questions": [
-          {
-            "q": "Clue: 'Knowledge is the only currency here.' Eliminate places of physical treatment or travel.",
-            "keywords": [
-              [
-                "hospital",
-                "airport"
-              ]
-            ],
-            "eliminate": [
-              "Hospital",
-              "Airport"
-            ]
-          },
-          {
-            "q": "Clue: 'You do not own what you take \u2014 you return it.' Narrow the list.",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "museum"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'Curious minds are always welcome here, regardless of age.' What does this suggest?",
-            "keywords": [
-              [
-                "public"
-              ],
-              [
-                "accessible"
-              ],
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'Every story ever told lives within these walls.' What place fits perfectly?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "eliminate": [
-              "Museum",
-              "Laboratory",
-              "School"
-            ]
-          },
-          {
-            "q": "Final question: Name the destination. Justify using ALL three clues.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b3_i3.jpg"
-      }
-    ]
-  },
-  {
-    "id": 4,
-    "grades": "Grade 7 & 8",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A community centre. Five people give statements about a missing invitation envelope.",
-        "witnesses": [
-          "Witness A: \"I placed the envelope on the front desk at 9:00 AM before anyone arrived.\"",
-          "Witness B: \"I arrived at 9:05 AM. The desk was empty. No envelope.\"",
-          "Witness C: \"I was cleaning the lobby from 8:45 to 9:15 AM and saw nothing unusual.\"",
-          "Witness D: \"I used the front desk at 9:02 AM and saw no envelope.\"",
-          "Witness E: \"I saw an envelope on the desk at 9:01 AM when I passed the window outside.\""
-        ],
-        "questions": [
-          {
-            "q": "What is the precise time window during which the envelope disappeared?",
-            "keywords": [
-              [
-                "9:01",
-                "9:02"
-              ],
-              [
-                "901",
-                "902"
-              ]
-            ]
-          },
-          {
-            "q": "Does Witness C's statement help or hurt the investigation? Why?",
-            "keywords": [
-              [
-                "hurt"
-              ]
-            ]
-          },
-          {
-            "q": "Which two witnesses' statements create the most significant tension?",
-            "keywords": [
-              [
-                "d",
-                "e"
-              ]
-            ]
-          },
-          {
-            "q": "What makes Witness A's statement impossible to verify independently?",
-            "keywords": [
-              [
-                "no one else"
-              ],
-              [
-                "alone"
-              ],
-              [
-                "only"
-              ]
-            ]
-          },
-          {
-            "q": "Identify the most suspicious witness and construct a theory explaining why.",
-            "keywords": [
-              [
-                "c"
-              ],
-              [
-                "witness c"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b4_i1.jpg"
-      },
-      {
-        "title": "Evidence Analysis",
-        "scene": "Evidence from the community centre lobby has been secured.",
-        "questions": [
-          {
-            "q": "You have: CCTV footage (blurry), a witness receipt (dated yesterday), and a cleaning log (unsigned). Rank these by reliability.",
-            "keywords": [
-              [
-                "receipt"
-              ],
-              [
-                "cctv"
-              ],
-              [
-                "log"
-              ]
-            ]
-          },
-          {
-            "q": "The cleaning log shows the lobby was swept at 8:45, 9:00, and 9:30. What does the 9:00 entry suggest about Witness C's claim?",
-            "keywords": [
-              [
-                "working"
-              ],
-              [
-                "overlook"
-              ],
-              [
-                "missed"
-              ]
-            ]
-          },
-          {
-            "q": "A cause-and-effect chain: Envelope placed (9:00) \u2192 ? \u2192 Envelope gone (9:02). What is the most likely middle event?",
-            "keywords": [
-              [
-                "took"
-              ],
-              [
-                "moved"
-              ],
-              [
-                "someone"
-              ]
-            ]
-          },
-          {
-            "q": "Two pieces of evidence conflict: C's log says nothing unusual; E's testimony says the envelope was visible. How do you reconcile this?",
-            "keywords": [
-              [
-                "notice"
-              ],
-              [
-                "dishonest"
-              ],
-              [
-                "mistaken"
-              ],
-              [
-                "cctv"
-              ]
-            ]
-          },
-          {
-            "q": "The envelope contained an invitation to a place that 'contains the knowledge of ages.' Based on investigation so far, where might this lead?",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "archive"
-              ],
-              [
-                "museum"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b4_i2.jpg"
-      },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: Hospital, Library, Museum, Archive, University, Laboratory.",
-        "destinations": [
-          "Hospital",
-          "Library",
-          "Museum",
-          "Archive",
-          "University",
-          "Laboratory"
-        ],
-        "questions": [
-          {
-            "q": "Clue: 'You don't need money to access what is kept here.' Eliminate destinations.",
-            "keywords": [
-              [
-                "university",
-                "laboratory"
-              ]
-            ],
-            "eliminate": [
-              "University",
-              "Laboratory"
-            ]
-          },
-          {
-            "q": "Clue: 'Anyone of any age may enter and leave with knowledge.' Narrow the list.",
-            "keywords": [
-              [
-                "library",
-                "museum"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'You may take what is here, but you must return it.' Which destination fits precisely?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'Every genre of human thought lives within these walls.' What specific feature is described?",
-            "keywords": [
-              [
-                "book"
-              ],
-              [
-                "collection"
-              ],
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Final question: State the destination and provide a full justification using all four clues.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b4_i3.jpg"
-      }
-    ]
-  },
-  {
-    "id": 5,
-    "grades": "Grade 9 & 10",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A government building. Five staff members give statements about a missing file.",
-        "witnesses": [
-          "Witness A (Security): \"The file room was locked from 6:00 PM. I have the only key.\"",
-          "Witness B (Clerk): \"I saw the file in the room at 5:45 PM when I locked up.\"",
-          "Witness C (Manager): \"I used the file room at 5:50 PM. Everything was in order.\"",
-          "Witness D (Cleaner): \"I cleaned the file room at 5:55 PM. I saw a folder on the floor.\"",
-          "Witness E (Colleague): \"The file was reported missing at 8:00 AM the next morning.\""
-        ],
-        "questions": [
-          {
-            "q": "What contradiction exists between Witness A and Witness C?",
-            "keywords": [
-              [
-                "only key"
-              ],
-              [
-                "key"
-              ]
-            ]
-          },
-          {
-            "q": "Does Witness D's statement support or undermine the official narrative? Why?",
-            "keywords": [
-              [
-                "undermine"
-              ]
-            ]
-          },
-          {
-            "q": "Assess the credibility of Witness B given that C also visited at 5:50 PM.",
-            "keywords": [
-              [
-                "before"
-              ],
-              [
-                "left"
-              ]
-            ]
-          },
-          {
-            "q": "What is the significance of the 5-minute gap between 5:55 PM (D's visit) and 6:00 PM (A locks up)?",
-            "keywords": [
-              [
-                "disturb"
-              ],
-              [
-                "remove"
-              ],
-              [
-                "window"
-              ]
-            ]
-          },
-          {
-            "q": "Construct a timeline of the most likely sequence of events, identifying where the file most probably went missing.",
-            "keywords": [
-              [
-                "5:55",
-                "6:00"
-              ],
-              [
-                "555",
-                "600"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b5_i1.jpg"
-      },
-      {
-        "title": "Evidence Analysis",
-        "scene": "Physical and documentary evidence from the building has been collected.",
-        "questions": [
-          {
-            "q": "You have: an access log showing 4 entries, a CCTV recording with a corrupted 10-minute section, and a signed checkout form. Rank evidence by reliability and explain each.",
-            "keywords": [
-              [
-                "form"
-              ],
-              [
-                "log"
-              ],
-              [
-                "cctv"
-              ]
-            ]
-          },
-          {
-            "q": "The access log shows 5 entries but only 4 people gave statements. What does this imply?",
-            "keywords": [
-              [
-                "fifth"
-              ],
-              [
-                "unidentified"
-              ],
-              [
-                "unaccounted"
-              ]
-            ]
-          },
-          {
-            "q": "A cause-and-effect chain: File last confirmed (5:45) \u2192 Room disturbed (5:55) \u2192 Room locked (6:00) \u2192 File missing (8:00). At which point should the investigation focus?",
-            "keywords": [
-              [
-                "5:55",
-                "6:00"
-              ],
-              [
-                "555",
-                "600"
-              ]
-            ]
-          },
-          {
-            "q": "Two witnesses contradict each other. One has a signed form; the other has a verbal account. Which do you prioritise and why?",
-            "keywords": [
-              [
-                "form"
-              ],
-              [
-                "document"
-              ]
-            ]
-          },
-          {
-            "q": "The missing file was labelled: 'For the eyes of those who seek to understand.' What type of content does this suggest and where would it ultimately belong?",
-            "keywords": [
-              [
-                "academic"
-              ],
-              [
-                "scholarly"
-              ],
-              [
-                "library"
-              ],
-              [
-                "archive"
-              ],
-              [
-                "research"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b5_i2.jpg"
-      },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: Government Archive, Hospital, Library, University Research Lab, Museum, International Office.",
-        "destinations": [
-          "Government Archive",
-          "Hospital",
-          "Library",
-          "University Research Lab",
-          "Museum",
-          "International Office"
-        ],
-        "questions": [
-          {
-            "q": "Clue: 'The destination does not restrict access based on profession or status.' Eliminate destinations.",
-            "keywords": [
-              [
-                "archive",
-                "research",
-                "office"
-              ]
-            ],
-            "eliminate": [
-              "Government Archive",
-              "University Research Lab",
-              "International Office"
-            ]
-          },
-          {
-            "q": "Clue: 'No transaction is required to access the knowledge stored here.' Eliminate remaining options.",
-            "keywords": [
-              [
-                "museum"
-              ]
-            ],
-            "eliminate": [
-              "Museum"
-            ]
-          },
-          {
-            "q": "Clue: 'The destination is the oldest known system for sharing recorded human thought.' What does this describe?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'You may temporarily possess what is stored here, but it must be returned for others to access.' Which destination fits perfectly and why?",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "lending"
-              ],
-              [
-                "borrow"
-              ]
-            ]
-          },
-          {
-            "q": "Final question: Provide a comprehensive case summary identifying the destination and justifying it using evidence from all three investigations.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b5_i3.jpg"
-      }
-    ]
-  },
-  {
-    "id": 6,
-    "grades": "Grade 11 & 12",
-    "investigations": [
-      {
-        "title": "Witness Statements",
-        "scene": "A national institution. Six senior staff give statements about a classified report that has gone missing.",
-        "witnesses": [
-          "Witness A (Director): \"The report was filed correctly at end of day. I personally oversaw the process.\"",
-          "Witness B (Deputy): \"The filing system showed an anomaly at 6:12 PM \u2014 an entry was made under an incorrect reference code.\"",
-          "Witness C (Archivist): \"I filed the report at 6:05 PM under the correct code. I have no knowledge of a 6:12 entry.\"",
-          "Witness D (IT Officer): \"The system log confirms a manual override was used at 6:12 PM from Terminal 4.\"",
-          "Witness E (Security): \"Terminal 4 is located in a restricted zone. Only three staff have access: the Director, Deputy, and Archivist.\"",
-          "Witness F (Intern): \"I was near Terminal 4 at around 6:10 PM and saw someone leaving quickly, though I couldn't identify them.\""
-        ],
-        "questions": [
-          {
-            "q": "Identify all logical inconsistencies across the six statements.",
-            "keywords": [
-              [
-                "6:05",
-                "6:12"
-              ],
-              [
-                "605",
-                "612"
-              ]
-            ]
-          },
-          {
-            "q": "Assess the reliability of Witness A given their position and statement.",
-            "keywords": [
-              [
-                "authority"
-              ],
-              [
-                "reliab"
-              ],
-              [
-                "contradict"
-              ]
-            ]
-          },
-          {
-            "q": "Witness D provides system log data. What are the limitations of this as evidence? ",
-            "keywords": [
-              [
-                "identity"
-              ],
-              [
-                "credential"
-              ],
-              [
-                "altered"
-              ]
-            ]
-          },
-          {
-            "q": "Witness F is an intern with low institutional authority. Does this affect their credibility? Justify.",
-            "keywords": [
-              [
-                "not necessarily"
-              ],
-              [
-                "consistency"
-              ],
-              [
-                "motive"
-              ],
-              [
-                "corroborat"
-              ]
-            ]
-          },
-          {
-            "q": "Construct a suspect profile for the most likely person responsible, using all six statements as evidence.",
-            "keywords": [
-              [
-                "deputy"
-              ],
-              [
-                "archivist"
-              ],
-              [
-                "terminal 4"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b6_i1.jpg"
-      },
-      {
-        "title": "Evidence Analysis",
-        "scene": "A full evidence board from the national institution has been compiled.",
-        "questions": [
-          {
-            "q": "You have: a system log with a verified timestamp, a witness testimony with a possible bias, a security badge scan record, and an unsigned memo. Rank all four by evidentiary value and justify each.",
-            "keywords": [
-              [
-                "log"
-              ],
-              [
-                "badge"
-              ],
-              [
-                "memo"
-              ],
-              [
-                "testimony"
-              ]
-            ]
-          },
-          {
-            "q": "The manual override at 6:12 PM was made from Terminal 4 using Archivist credentials. Does this prove the Archivist committed the act? Explain.",
-            "keywords": [
-              [
-                "no"
-              ],
-              [
-                "stolen"
-              ],
-              [
-                "shared"
-              ],
-              [
-                "circumstantial"
-              ]
-            ]
-          },
-          {
-            "q": "Conflicting evidence: C's filing log says 6:05 (correct), D's system log says 6:12 (override). How do you determine which version of events is more accurate?",
-            "keywords": [
-              [
-                "cross-reference"
-              ],
-              [
-                "badge"
-              ],
-              [
-                "cctv"
-              ],
-              [
-                "harder to fabricate"
-              ]
-            ]
-          },
-          {
-            "q": "A memo is found reading: 'The knowledge we protect must never be silenced. Return it to where all may access it.' What does this suggest about the motive and likely destination of the missing report?",
-            "keywords": [
-              [
-                "public"
-              ],
-              [
-                "accessible"
-              ],
-              [
-                "library"
-              ],
-              [
-                "archive"
-              ]
-            ]
-          },
-          {
-            "q": "Synthesise the full evidence chain: system anomaly \u2192 restricted access \u2192 eyewitness \u2192 memo. What single conclusion best accounts for ALL available evidence?",
-            "keywords": [
-              [
-                "authorised"
-              ],
-              [
-                "authorized"
-              ],
-              [
-                "access"
-              ],
-              [
-                "library"
-              ],
-              [
-                "public"
-              ]
-            ]
-          }
-        ],
-        "img": "assets/images/b6_i2.jpg"
-      },
-      {
-        "title": "Crack the Conclusion",
-        "scene": "Possible destinations: National Archive, Government Vault, Library, Research Institute, Private Collection, International Repository.",
-        "destinations": [
-          "National Archive",
-          "Government Vault",
-          "Library",
-          "Research Institute",
-          "Private Collection",
-          "International Repository"
-        ],
-        "questions": [
-          {
-            "q": "Clue: 'The destination operates on the principle that knowledge belongs to everyone, not to the few.' Eliminate destinations.",
-            "keywords": [
-              [
-                "vault",
-                "private",
-                "international"
-              ]
-            ],
-            "eliminate": [
-              "Government Vault",
-              "Private Collection",
-              "International Repository"
-            ]
-          },
-          {
-            "q": "Clue: 'Access requires no credentials, no payment, and no institutional affiliation.' Narrow the list further.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "eliminate": [
-              "National Archive",
-              "Research Institute"
-            ]
-          },
-          {
-            "q": "Clue: 'The institution has existed in some form in nearly every civilisation in recorded history.' What does this indicate?",
-            "keywords": [
-              [
-                "library"
-              ],
-              [
-                "universal"
-              ],
-              [
-                "oldest"
-              ]
-            ]
-          },
-          {
-            "q": "Clue: 'The memo found in Investigation Two says: Return it to where all may access it.' Cross-reference this with the clues above. What is the destination?",
-            "keywords": [
-              [
-                "library"
-              ]
-            ]
-          },
-          {
-            "q": "Final question: Write a complete case summary \u2014 the destination, the motive, the suspect profile, and the role of the Library in the broader story of knowledge and access.",
-            "keywords": [
-              [
-                "library"
-              ]
-            ],
-            "final": true
-          }
-        ],
-        "img": "assets/images/b6_i3.jpg"
-      }
-    ]
-  }
+      questions: [
+        { id: "q2", q: "Who was the last person to confirm the room was locked?", groups: [["diary c", "c"], ["6:00", "6 pm", "handle", "tested"]] },
+        { id: "q3", q: "What is the earliest the door could have been opened, based on the timeline?", groups: [["11:30"], ["6:45"]] },
+        { id: "q4", q: "The undated note says 'I heard the key turn twice.' Where does it most logically fit in the timeline?", groups: [["diary c", "6:00", "6 pm"], ["handle", "test", "key"]] },
+        { id: "q5", q: "Photo 1 shows the light on; Photo 2 shows it off with the door ajar. Which was taken first?", groups: [["photo 1", "photograph 1", "first"], ["normal", "before", "earlier", "in use"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Using the confirmed critical window (Mon 11:30 PM – Tue 6:45 AM), follow the evidence trail through the building.",
+      questions: [
+        { id: "q1", q: "A displaced floor mat is found outside the locked room. What does this suggest about night-time foot traffic?", groups: [["movement", "foot traffic", "passed through", "someone passed"], ["night", "critical window", "unusual"]] },
+        { id: "q2", q: "Diary E mentions footsteps. Could they have come from the squeaky staircase? What would confirm this?", groups: [["possible", "maybe", "inconclusive", "could be"], ["recording", "witness", "footprint", "confirm"]] },
+        { id: "q3", q: "Match each piece of evidence to a location: displaced mat, unlocked door, footstep sound.", groups: [["corridor"], ["locked room", "room"], ["staircase", "corridor"]] },
+        { id: "q4", q: "A coffee cup is found in the storage room. Is this relevant to the investigation? Justify your answer.", groups: [["not relevant", "probably not", "no connect", "unconnected"], ["storage room", "no entry", "overnight", "timeline"]] },
+        { id: "q5", q: "Based on all evidence locations, reconstruct the most likely route taken during the critical window.", groups: [["staircase"], ["room", "locked room"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Closed",
+      brief: "You have the timeline and the evidence trail (Staircase → Corridor → Locked Room). Close the case.",
+      conclusions: [
+        { id: "A", label: "The room was never properly locked" },
+        { id: "B", label: "Someone with access entered during the night" },
+        { id: "C", label: "The door opened by itself due to a faulty lock" },
+        { id: "D", label: "Someone entered through a window" }
+      ],
+      questions: [
+        { id: "q1", q: "Diary C confirms the room was locked and the handle was tested. Does this eliminate A?", groups: [["yes"], ["diary c", "handle"]], eliminates: ["A"] },
+        { id: "q2", q: "No window disturbance was recorded anywhere. Does this eliminate D?", groups: [["yes"], ["window", "no evidence", "no disturbance"]], eliminates: ["D"] },
+        { id: "q3", q: "A faulty lock would not explain the mat or the footsteps. Does this eliminate C?", groups: [["yes"], ["mat", "footstep"]], eliminates: ["C"] },
+        { id: "q4", q: "Which conclusion is now the only one supported by all available evidence?", groups: [["b", "access", "internal"]], eliminates: [] },
+        { id: "q5", q: "Write a short investigator's report (3–4 sentences) summarising the findings and justifying the conclusion.", groups: [["locked", "6:00", "6 pm"], ["mat", "footstep", "movement"], ["11:30", "6:45", "critical window", "overnight"], ["b", "internal access", "access"]] }
+      ]
+    }
+  ]
+},
+
+// ============================================================
+// BAND 4 — Grades 7 & 8 — The Research Centre Power Cut
+// ============================================================
+{
+  id: 3, gradeLabel: "Band 4 (Grades 7–8)", caseTitle: "The Case of the Research Centre Power Cut",
+  intro: "Six witness reports about an incident at a research centre — filed at different times, with overlapping and conflicting information.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Partial Timeline Recovered",
+      brief: "Six conflicting reports. Reconstruct the most defensible timeline you can.",
+      questions: [
+        { id: "q1", q: "Three reports give different times for the same power cut: A says 7:15 PM, B says 7:20 PM, C says 7:12 PM. Which is most likely accurate, and why?", groups: [["7:12", "7:15", "7:20"], ["earliest", "estimate", "after the fact", "conservative"]] },
+        { id: "q2", q: "Report D says the door was locked at 7:30 PM. Report F says it was open at 7:35 PM. How do you resolve this contradiction?", groups: [["contradiction", "conflict", "disagree"], ["cctv", "log", "witness", "corrobor", "confirm"]] },
+        { id: "q3", q: "Report E has a correction — 8:00 PM crossed out, replaced with 7:45 PM. Does this make it more or less reliable? Why?", groups: [["less reliable", "less trustworthy"], ["tamper", "accuracy", "compare", "question"]] },
+        { id: "q4", q: "Using only reports you can verify, construct a partial timeline of the most confidently confirmed events.", groups: [["7:12"], ["7:20", "7:30", "7:45"], ["uncertain", "caveat", "unclear", "unresolved"]] },
+        { id: "q5", q: "What is the single most important question an investigator should ask to resolve the timeline?", groups: [["log", "cctv", "record", "electronic"], ["objective", "independent", "not rely on memory"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Using the partial timeline, follow the evidence across the Main Lab, Server Room, and Emergency Exit.",
+      questions: [
+        { id: "q1", q: "A keycard scan at the Server Room door reads 7:18 PM. Is this within the timeline window? What does it suggest?", groups: [["yes"], ["7:18"], ["power cut", "cover", "after"]] },
+        { id: "q2", q: "A second scan at the Emergency Exit shows 7:22 PM. If the same person made both scans, how long were they inside?", groups: [["4 minute", "4 min"]] },
+        { id: "q3", q: "The Server Room requires two-person authorisation but only one scan was recorded. What does this inconsistency suggest?", groups: [["bypass", "protocol", "second person", "not recorded"]] },
+        { id: "q4", q: "A chair pulled away, a screen left on, a half-drunk coffee — what does this suggest about how the occupant left?", groups: [["hurry", "unexpected", "suddenly", "abrupt"], ["chair", "coffee", "screen"]] },
+        { id: "q5", q: "Trace the most likely movement: where did they start, where did they go, how did they leave?", groups: [["server room"], ["emergency exit", "exit"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Closed",
+      brief: "You have the partial timeline and the movement trail (Server Room → Emergency Exit in 4 minutes). Close the case.",
+      conclusions: [
+        { id: "A", label: "Accidental access during power cut confusion" },
+        { id: "B", label: "A planned, deliberate entry using the power cut as cover" },
+        { id: "C", label: "Authorised access that was incorrectly flagged" },
+        { id: "D", label: "A system error that created false scan records" }
+      ],
+      questions: [
+        { id: "q1", q: "The scan happened six minutes after the power cut. Is this consistent with confusion, or something more deliberate?", groups: [["deliberate", "planned", "intentional"], ["6 minute", "waited"]], eliminates: [] },
+        { id: "q2", q: "The two-person protocol was bypassed. Does accidental access (A) explain a protocol bypass?", groups: [["no"], ["eliminate", "a"]], eliminates: ["A"] },
+        { id: "q3", q: "If access were authorised (C), a matching authorisation record would exist. None does. Does this eliminate C?", groups: [["yes"], ["eliminate", "c"]], eliminates: ["C"] },
+        { id: "q4", q: "System errors (D) usually create multiple anomalies. Only one scan is anomalous. Does this eliminate D?", groups: [["yes"], ["eliminate", "d"]], eliminates: ["D"] },
+        { id: "q5", q: "Write a structured report (4–5 sentences) identifying and justifying the most supported conclusion.", groups: [["7:12", "7:18", "7:22"], ["server room", "emergency exit"], ["protocol", "authorisation", "two-person"], ["b", "deliberate", "planned"]] }
+      ]
+    }
+  ]
+},
+
+// ============================================================
+// BAND 5 — Grades 9 & 10 — The Government Archive
+// ============================================================
+{
+  id: 4, gradeLabel: "Band 5 (Grades 9–10)", caseTitle: "The Case of the Vanished Records",
+  intro: "Seven documents — internal reports, testimonies, a redacted memo, and a CCTV log with a 20-minute gap. Confidential records have disappeared.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Partial Timeline Recovered",
+      brief: "Seven documents, no master clock, and a CCTV gap. Build the most defensible timeline you can.",
+      questions: [
+        { id: "q1", q: "Three internal reports give different times for the same event (11:35 / 11:42 / 11:50 PM). Propose a method for determining which is most accurate.", groups: [["cctv", "log", "electronic", "independent"], ["cross-reference", "triangulat", "compare"]] },
+        { id: "q2", q: "A redacted memo references '[REDACTED] PM' and 'the person responsible for [REDACTED].' What can be legitimately inferred?", groups: [["event", "documented", "known"], ["person", "identified", "responsible"]] },
+        { id: "q3", q: "The CCTV gap runs 11:40 PM–12:00 AM; the disappearance was reported at 12:15 AM. What does the gap tell us?", groups: [["critical", "most important period", "unavailable"], ["deliberate", "coincidental", "coincidence", "investigated"]] },
+        { id: "q4", q: "Two testimonies directly contradict each other. Construct a method for evaluating which is more credible.", groups: [["corrobor", "access log", "keycard", "third witness"], ["motive", "benefit", "position", "consistency"]] },
+        { id: "q5", q: "Using only elements confirmed by more than one source, construct the most defensible partial timeline.", groups: [["11:35", "11:50"], ["12:15"], ["uncertain", "gap", "overlap", "approximate"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Using the partial timeline and the CCTV gap, follow the trail through three floors of the archive.",
+      questions: [
+        { id: "q1", q: "Floor 2 was entered at 11:38 PM using Credential Set X. Floor 3 has no matching log. What are the two most likely explanations?", groups: [["disabled", "bypass", "not logging", "engineered"], ["route", "different route", "log-free", "bypass the standard"]] },
+        { id: "q2", q: "The missing records were on Floor 3, which has no access log. Does this mean no one entered? Evaluate this reasoning.", groups: [["absence", "does not mean", "does not prove", "no proof"], ["delete", "bypass", "compromise", "disabled"]] },
+        { id: "q3", q: "A fire door between Floors 2 and 3 was found propped open, with no electronic log. What does this add to the trail?", groups: [["log-free", "no log", "bypass"], ["deliberate", "intentional", "suggests"]] },
+        { id: "q4", q: "Floor 1 shows a moved chair, an unlogged session, and a visitor sign-in at 11:20 PM. Is this relevant to the Floor 3 disappearance?", groups: [["possibly", "relevant", "could be"], ["11:20", "window", "starting point"]] },
+        { id: "q5", q: "Construct the most evidence-supported route from arrival to the removal of the records.", groups: [["11:20"], ["11:38"], ["fire door", "floor 3", "12:15"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Closed",
+      brief: "You have the partial timeline and the full movement trail (Floor 1 → Floor 2 → Fire Door → Floor 3). Close the case.",
+      conclusions: [
+        { id: "A", label: "An external intruder bypassed security" },
+        { id: "B", label: "An internal actor with partial credentials used a log-free route" },
+        { id: "C", label: "The records were misplaced rather than removed" },
+        { id: "D", label: "The CCTV gap and fire door were unrelated coincidences" },
+        { id: "E", label: "Multiple people were involved in a coordinated operation" }
+      ],
+      questions: [
+        { id: "q1", q: "The 11:38 PM entry used a legitimate internal credential. Does this support or eliminate an external intruder (A)?", groups: [["eliminate", "eliminates", "rules out"], ["internal", "legitimate", "credential"]], eliminates: ["A"] },
+        { id: "q2", q: "The records required specialist knowledge to locate quickly. Does this support B or E more strongly?", groups: [["b", "internal actor", "e", "coordinated"], ["knowledge", "insider", "location", "speed"]], eliminates: [] },
+        { id: "q3", q: "No search, misplacement report, or relocation order exists. Does this eliminate C?", groups: [["yes"], ["eliminate", "c"], ["protocol", "paper trail", "documentation"]], eliminates: ["C"] },
+        { id: "q4", q: "The CCTV gap, propped door, and credential use all occurred in the same 40-minute window. What is the most defensible position on D?", groups: [["unlikely", "not credible", "eliminate", "d"], ["coincidence", "cluster", "simultaneous"]], eliminates: ["D"] },
+        { id: "q5", q: "Write a full investigator's summary (5–6 sentences): most supported conclusion, remaining uncertainty, and next step.", groups: [["b", "internal actor", "e", "coordinated"], ["uncertain", "unconfirmed", "possible"], ["credential", "fire door", "cctv gap", "11:38"], ["next step", "recommend", "identify"]] }
+      ]
+    }
+  ]
+},
+
+// ============================================================
+// BAND 6 — Grades 11 & 12 — The Cold Case Review
+// ============================================================
+{
+  id: 5, gradeLabel: "Band 6 (Grades 11–12)", caseTitle: "The Cold Case Review",
+  intro: "A review board examines whether an investigation closed 15 years ago reached the correct conclusion — the original report, three dissenting memos, a review summary, and an anonymous whistleblower letter.",
+  rounds: [
+    {
+      key: "r1", title: "Reconstruct the Case", reward: "Case File A — Timeline Recovered (with caveats)",
+      brief: "Investigating an investigation. Reconstruct the most defensible account of what actually happened.",
+      questions: [
+        { id: "q1", q: "The original report concluded 'no further action necessary.' Three separate memos dissented. What does this tell us?", groups: [["contested", "disagreement", "not unanimous"], ["overridden", "why", "override", "question"]] },
+        { id: "q2", q: "The review board says 'correct procedure was followed.' A memo says 'procedure was followed but evidence was excluded first.' Analyse the relationship.", groups: [["both", "simultaneously", "not contradictory"], ["procedural", "evidential", "structural flaw"]] },
+        { id: "q3", q: "An anonymous whistleblower letter names an individual who authorised the exclusion. Evaluate its reliability.", groups: [["unverifiable", "cannot be verified", "anonymous", "cross-examine"], ["value", "checkable", "specific", "direction"]] },
+        { id: "q4", q: "Reconstruct the most defensible timeline, accounting for events that may be undocumented or deliberately obscured.", groups: [["event occurred", "evidence collected", "procedure"], ["undocumented", "obscured", "gap", "uncertain"]] },
+        { id: "q5", q: "At what point was the original investigation most vulnerable to a flawed conclusion? Justify your answer.", groups: [["evidence selection", "pre-procedure", "before procedure", "earliest stage"], ["highest risk", "no amount of procedural", "vulnerable"]] }
+      ]
+    },
+    {
+      key: "r2", title: "Follow the Trail", reward: "Case File B — Evidence Trail Recovered",
+      brief: "Working backward from the conclusion to the source, using the reconstructed timeline and the identified vulnerability.",
+      questions: [
+        { id: "q1", q: "What evidence would have been necessary to support 'no further action' — and what would have undermined it?", groups: [["support", "no wrongdoing", "no risk"], ["undermine", "concealment", "dissent", "excluded", "anomaly"]] },
+        { id: "q2", q: "Three memos challenge completeness, interpretation, and witness qualification. Rank these by their power to overturn the conclusion.", groups: [["completeness"], ["interpretation"], ["witness", "qualification"]] },
+        { id: "q3", q: "A financial record is referenced in a memo but excluded from the final report. What is the significance of a referenced-but-excluded piece of evidence?", groups: [["referenced", "known", "excluded"], ["deliberate", "selective", "intentional"]] },
+        { id: "q4", q: "The review board had access to the dissenting memos and still endorsed the original conclusion. Does this strengthen or weaken confidence in the board?", groups: [["weaken"], ["incompetent", "complicit", "scrutiny"]] },
+        { id: "q5", q: "Synthesise the evidence trail into a single statement on the relationship between the conclusion and the evidence.", groups: [["filtered", "selective evidence base"], ["procedural", "evidential", "survives"], ["fragil", "whistleblower", "unresolved"]] }
+      ]
+    },
+    {
+      key: "r3", title: "Close the Case", reward: "Case File C — Investigation Status: Formally Inconclusive",
+      brief: "You have the reconstructed timeline and the inverted evidence trail. Close the case — or determine whether it can be closed at all.",
+      conclusions: [
+        { id: "A", label: "The original conclusion was correct; the dissent was unfounded" },
+        { id: "B", label: "The conclusion was reached in good faith on incomplete evidence" },
+        { id: "C", label: "The conclusion was deliberately shaped to reach a predetermined outcome" },
+        { id: "D", label: "The investigation was structurally flawed but not malicious" },
+        { id: "E", label: "The case cannot be definitively closed without the excluded record" }
+      ],
+      questions: [
+        { id: "q1", q: "If the original conclusion (A) were clearly correct, what would we expect to find? What do we actually find?", groups: [["expect", "would expect"], ["weaken", "eliminat"]], eliminates: ["A"] },
+        { id: "q2", q: "Conclusion B requires the exclusion was accidental. But the record was explicitly referenced elsewhere. Can B survive this fact?", groups: [["b"], ["weaken", "eliminat", "stretch", "barely"]], eliminates: [] },
+        { id: "q3", q: "C and D differ on intent. What single piece of evidence would most clearly distinguish between them?", groups: [["intent", "deliberate"], ["whistleblower", "authoris"]], eliminates: [] },
+        { id: "q4", q: "Is E a conclusion or an admission of investigative limitation? Is there value in formally recording an inconclusive finding?", groups: [["both", "conclusion and admission"], ["value", "protect", "reopen", "official"]], eliminates: [] },
+        { id: "q5", q: "Write a full closing report (6–8 sentences): most defensible conclusion, what remains unresolved, next steps, and a reflection on the limits of investigative work.", groups: [["e", "inconclusive", "cannot be definitively closed"], ["unresolved", "unaddressed", "not resolve"], ["locate", "identify", "protected channel", "next step"], ["integrity", "appearance of justice", "reliable", "limits"]] }
+      ]
+    }
+  ]
+}
+
 ];
 
-const BRIEF_TEXT = "Every year, only the sharpest minds in the world receive an invitation. Not the loudest. Not the fastest. The sharpest. Three investigations stand between you and the destination. <strong>Interview witnesses. Analyse evidence. Reach a conclusion.</strong> Collect all three pieces of evidence, and you will know exactly where you are going. Your investigation begins now.";
+const MISSION_INTRO = "Last week, you successfully completed Catch the Clue and discovered the hidden destination — the Library. But stepping into the Library only uncovered a much bigger mystery. Hidden among the shelves was an old investigation file — filled with scattered reports, misplaced photographs, missing pages, handwritten notes, maps, and pieces of evidence from a case that was never solved. Your mission this week is to follow the evidence, connect every piece together, and uncover what the investigation file is trying to reveal. Every correct decision moves you closer to the truth. Every mistake leads you further away. Your investigation begins now.";
 
-// The single shared closing question, shown after a player's 3 investigations are complete.
-// Worth +15 pts per the scoring doc (Section 5.1). This is where the point-wager mechanic applies.
-const FINAL_MYSTERY = {
-  intro: "You have interviewed witnesses. You have analysed evidence. You have reached your conclusion. These three pieces of evidence — a Book, a Bookshelf, and a Library Card — all point to one very special destination.",
-  question: "Where have all the clues been leading you?",
-  need: [["library"]],
-  points: 15
+const TRANSITION_LINES = {
+  afterR1: "Timeline Restored. Case File A secured. The sequence of events is now confirmed — move to Round 2. The evidence is waiting.",
+  afterR2: "Trail Confirmed. Case File B secured. You know where the evidence leads. Now it is time to close this case. Round 3 is now active.",
+  afterR3: "Case File recovered. Investigation Closed. Mission Complete."
 };
+
+const ENCOURAGEMENT_LINES = [
+  "Use what you already know — the timeline you built in Round 1 is your most powerful tool right now.",
+  "A good investigator does not guess. Every answer should point to at least one piece of evidence.",
+  "If something does not fit the timeline, that is exactly what you should be noting.",
+  "You are building a case — not answering questions. Think like an investigator."
+];
+
+const MISSION_COMPLETE_TEXT = "You followed the evidence. You reconstructed what others left scattered. You traced every footprint, every timestamp, every clue — and you built a case from nothing. That is not something everyone can do. The investigation file has been closed — for now. But a good investigator knows that a closed case is not always a finished one. The evidence tells you when to stop. Not the clock. Not the deadline. Until the next file opens — stay sharp, Agent.";
